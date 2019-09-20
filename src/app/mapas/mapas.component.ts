@@ -12,6 +12,7 @@ export class MapasComponent implements OnInit {
   map: google.maps.Map;
 
   marcadores: google.maps.Marker[] = [];
+  infoWindows: google.maps.InfoWindow[] = [];
 
   lugares: Lugar[] = [
     {
@@ -66,6 +67,36 @@ export class MapasComponent implements OnInit {
     });
 
     this.marcadores.push(marker);
+
+    const contenido = `<b>${ marcador.nombre }</b>`;
+    const infoWindow = new google.maps.InfoWindow({
+      content: contenido
+    });
+
+    this.infoWindows.push(infoWindow);
+
+    google.maps.event.addDomListener(marker, 'click', () => {
+      this.infoWindows.forEach( infWin => infWin.close());
+      infoWindow.open(this.map, marker);
+
+  });
+
+    google.maps.event.addDomListener(marker, 'dblclick', (coors) => {
+
+        marker.setMap(null);
+        // Disparar un evento de socket, para borrar el marcador
+    });
+
+    google.maps.event.addDomListener(marker, 'drag', (coors) => {
+      const nuevoMarcador = {
+        lat: coors['latLng'].lat(),
+        lng: coors['latLng'].lng(),
+        nombre: marcador.nombre
+      };
+
+      console.log(nuevoMarcador);
+      // Disparar un evento de socket, para mover el marcador
+  });
   }
 
 }
